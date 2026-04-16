@@ -1,0 +1,975 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>InsiderGuard AI SOC</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:transparent !important;
+color:white;
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+/* SECTION SPACING */
+
+.section{
+margin-bottom:70px;
+}
+
+/* =========================
+CARDS
+========================= */
+
+.card{
+background:rgba(30,41,59,0.45) !important;
+border-radius:14px;
+padding:20px;
+border-left:4px solid #3b82f6;
+box-shadow:0 6px 12px rgba(0,0,0,0.4);
+transition:.25s;
+}
+
+.card:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 18px rgba(0,0,0,0.5);
+}
+
+.card h5{
+color:#ffffff;
+font-weight:600;
+}
+
+.card h6{
+color:#e2e8f0;
+}
+
+/* KPI COLORS */
+
+.critical-card{
+border-left:6px solid #ef4444;
+box-shadow:0 0 18px rgba(239,68,68,0.6);
+}
+
+.active-card{
+border-left:6px solid #f97316;
+box-shadow:0 0 18px rgba(249,115,22,0.6);
+}
+
+.remediated-card{
+border-left:6px solid #22c55e;
+box-shadow:0 0 18px rgba(34,197,94,0.6);
+}
+
+.total-card{
+border-left:6px solid #3b82f6;
+box-shadow:0 0 18px rgba(59,130,246,0.6);
+}
+
+/* =========================
+TABLE (FULL BOOTSTRAP OVERRIDE)
+========================= */
+
+.table{
+background:transparent !important;
+color:white !important;
+border-color:rgba(255,255,255,0.08) !important;
+}
+
+.table thead{
+background:rgba(30,41,59,0.45) !important;
+color:white !important;
+}
+
+.table tbody{
+background:transparent !important;
+}
+
+.table tbody tr{
+background:transparent !important;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.table tbody tr:hover{
+background:rgba(59,130,246,0.1) !important;
+cursor:pointer;
+}
+
+/* =========================
+CHART CONTAINER
+========================= */
+
+.chart-container{
+width:100%;
+height:350px;
+position:relative;
+}
+
+/* =========================
+ALERT PANEL
+========================= */
+
+#alertList{
+max-height:340px;
+overflow-y:auto;
+}
+
+.alert-item{
+
+background:rgba(30,41,59,0.45);
+
+border-radius:10px;
+
+padding:14px;
+
+margin-bottom:12px;
+
+border-left:4px solid #3b82f6;
+
+color:white;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+font-size:14px;
+
+}
+
+.alert-item button{
+margin-left:10px;
+}
+.table,
+.table tbody,
+.table tr,
+.table td,
+.table th{
+background:transparent !important;
+color:white !important;
+border-color:rgba(255,255,255,0.08) !important;
+}
+
+.table thead tr{
+background:rgba(30,41,59,0.45) !important;
+}
+
+.table tbody tr:hover{
+background:rgba(59,130,246,0.1) !important;
+}
+/* SOC LIVE INDICATOR */
+
+.soc-live{
+display:flex;
+align-items:center;
+gap:10px;
+font-weight:600;
+color:#22c55e;
+}
+
+.live-dot{
+width:10px;
+height:10px;
+background:#22c55e;
+border-radius:50%;
+box-shadow:0 0 8px #22c55e;
+animation:blink 1.5s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1;}
+50%{opacity:.3;}
+100%{opacity:1;}
+}
+
+/* HIGH RISK ALERT BANNER */
+
+.risk-banner{
+
+display:flex;
+align-items:center;
+gap:15px;
+
+background:linear-gradient(90deg,#7f1d1d,#dc2626);
+
+border-radius:12px;
+
+padding:14px 20px;
+
+margin-bottom:25px;
+
+box-shadow:0 0 20px rgba(239,68,68,.6);
+
+animation:pulseAlert 2s infinite;
+
+}
+
+.risk-icon{
+font-size:28px;
+}
+
+.risk-title{
+font-size:18px;
+font-weight:700;
+}
+
+.risk-details{
+font-size:14px;
+opacity:.9;
+}
+
+@keyframes pulseAlert{
+
+0%{box-shadow:0 0 8px rgba(239,68,68,.4)}
+50%{box-shadow:0 0 25px rgba(239,68,68,.9)}
+100%{box-shadow:0 0 8px rgba(239,68,68,.4)}
+
+}
+
+/* CRITICAL ALERT POPUP */
+
+.critical-popup{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.6);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+z-index:9999;
+
+}
+
+.popup-box{
+
+background:linear-gradient(135deg,#7f1d1d,#dc2626);
+
+padding:35px;
+
+border-radius:14px;
+
+text-align:center;
+
+width:420px;
+
+box-shadow:0 0 35px rgba(239,68,68,.8);
+
+animation:popupPulse 2s infinite;
+
+}
+
+.popup-title{
+
+font-size:22px;
+font-weight:700;
+margin-bottom:10px;
+
+}
+
+.popup-details{
+
+margin-bottom:20px;
+font-size:15px;
+
+}
+
+.popup-actions button{
+margin:0 10px;
+}
+
+@keyframes popupPulse{
+
+0%{box-shadow:0 0 12px rgba(239,68,68,.5)}
+50%{box-shadow:0 0 35px rgba(239,68,68,1)}
+100%{box-shadow:0 0 12px rgba(239,68,68,.5)}
+
+}
+
+/* RISK GAUGE */
+
+.chart-container{
+position:relative;
+height:350px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.gauge-label{
+position:absolute;
+top:72%;
+left:50%;
+transform:translate(-50%, -50%);
+text-align:center;
+
+font-size:34px;
+font-weight:700;
+color:white;
+
+pointer-events:none;
+}
+#riskPercent{
+font-size:34px;
+font-weight:700;
+display:block;
+}
+
+#riskLevel{
+font-size:14px;
+opacity:0.8;
+letter-spacing:1px;
+margin-top:4px;
+}
+
+/* RISK GLOW COLORS */
+
+.low-risk{
+color:#22c55e;
+text-shadow:0 0 10px #22c55e;
+}
+
+.medium-risk{
+color:#facc15;
+text-shadow:0 0 10px #facc15;
+}
+
+.high-risk{
+color:#f97316;
+text-shadow:0 0 12px #f97316;
+}
+
+.critical-risk{
+color:#ef4444;
+text-shadow:0 0 15px #ef4444;
+}
+
+.high-glow{
+box-shadow:0 0 20px rgba(249,115,22,.7);
+}
+
+.critical-glow{
+box-shadow:0 0 25px rgba(239,68,68,.9);
+}
+</style>
+
+</style>
+
+
+<div class="container-fluid px-5">
+    <div id="highRiskBanner" class="risk-banner" style="display:none;">
+
+<div class="risk-icon">⚠</div>
+
+<div class="risk-content">
+
+<div class="risk-title">
+HIGH RISK ALERT
+</div>
+
+<div id="riskDetails" class="risk-details">
+User: --- | Threat: --- | Risk Score: ---
+</div>
+
+</div>
+
+</div>
+
+<section class="section">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+<h2>Threat Overview</h2>
+
+<div class="soc-live">
+<span class="live-dot"></span>
+SOC LIVE
+</div>
+
+</div>
+
+<button id="runBtn" class="btn btn-primary mb-4" onclick="generateLogs()">
+Generate Enterprise Logs
+</button>
+
+
+<div class="row g-4 mb-4">
+
+<div class="col-md-3">
+<div class="kpi-card critical-card">
+<h6>Critical</h6>
+<h3 id="kpiCritical">0</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="kpi-card active-card">
+<h6>Active</h6>
+<h3 id="kpiActive">0</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="kpi-card remediated-card">
+<h6>Remediated</h6>
+<h3 id="kpiRemediated">0</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="kpi-card total-card">
+<h6>Total Threats</h6>
+<h3 id="kpiTotal">0</h3>
+</div>
+</div>
+
+</div>
+<div class="row g-4">
+
+<div class="col-md-6">
+
+<div class="card" id="riskCard">
+
+<h5 class="mb-3">SOC Risk Level</h5>
+
+<div class="chart-container">
+
+<canvas id="riskGauge"></canvas>
+
+<div class="gauge-label">
+
+<span id="riskPercent">0%</span>
+
+<div id="riskLevel">LOW</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="card">
+
+<h5 class="mb-3">Threat Status</h5>
+
+<div class="chart-container">
+<canvas id="statusChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="section">
+
+<div class="row g-4">
+
+<div class="col-md-8">
+
+<div class="card">
+
+<h5 class="mb-3">Recent Threats</h5>
+
+<table class="table table-hover align-middle">
+
+<thead>
+<tr>
+<th>User</th>
+<th>Risk</th>
+<th>Severity</th>
+<th>Status</th>
+<th>Details</th>
+</tr>
+</thead>
+
+<tbody id="threatTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card">
+
+<h5 class="mb-3">Recent Alerts</h5>
+
+<div id="alertList"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="section">
+
+<div class="row g-4">
+
+<div class="col-md-6">
+
+<div class="card">
+
+<h5 class="mb-3">Threat Timeline</h5>
+
+<div class="chart-container">
+<canvas id="timelineChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="card">
+
+<h5 class="mb-3">Threat Type Distribution</h5>
+
+<div class="chart-container">
+<canvas id="typeChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<div id="criticalPopup" class="critical-popup" style="display:none;">
+
+<div class="popup-box">
+
+<div class="popup-title">
+⚠ CRITICAL THREAT DETECTED
+</div>
+
+<div id="popupDetails" class="popup-details">
+User: --- | Threat: --- | Risk Score: ---
+</div>
+
+<div class="popup-actions">
+
+<button class="btn btn-danger" onclick="investigateThreat()">
+Investigate
+</button>
+
+<button class="btn btn-outline-light" onclick="closePopup()">
+Dismiss
+</button>
+
+</div>
+
+</div>
+
+</div>
+<audio id="criticalSound" src="/static/sounds/critical_alert.mp3"></audio>
+
+<script>
+let riskGauge
+let statusChart
+let timelineChart
+let typeChart
+
+
+function initCharts(){
+
+riskGauge = new Chart(document.getElementById("riskGauge"),{
+
+type:"doughnut",
+
+data:{
+
+labels:["Low","Medium","High","Critical"],
+
+datasets:[{
+
+data:[25,25,25,25],
+
+backgroundColor:[
+"#22c55e",
+"#facc15",
+"#f97316",
+"#ef4444"
+],
+
+borderWidth:0
+
+}]
+
+},
+
+options:{
+cutout:"70%",
+rotation:-90,
+circumference:180,
+plugins:{legend:{display:false}},
+animation:{duration:800}
+}
+
+})
+
+
+statusChart = new Chart(document.getElementById("statusChart"),{
+type:"doughnut",
+data:{
+labels:["Active","Investigating","Remediated"],
+datasets:[{
+data:[0,0,0],
+backgroundColor:["#f97316","#3b82f6","#22c55e"]
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
+
+timelineChart = new Chart(document.getElementById("timelineChart"),{
+type:"line",
+data:{
+labels:[],
+datasets:[{
+label:"Threat Detection Activity",
+data:[],
+borderColor:"#3b82f6",
+backgroundColor:"rgba(59,130,246,0.2)",
+fill:true,
+tension:0.3
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
+
+typeChart = new Chart(document.getElementById("typeChart"),{
+type:"bar",
+data:{
+labels:[],
+datasets:[{
+label:"Incidents",
+data:[],
+backgroundColor:["#ef4444","#f97316","#3b82f6","#22c55e"]
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
+}
+
+
+function updateSeverityChart(severity){
+
+severityChart.data.datasets[0].data=[
+severity.Low||0,
+severity.Medium||0,
+severity.High||0
+]
+
+severityChart.update()
+
+}
+
+
+function viewThreat(threatId){
+window.location.href="/threat/"+threatId
+}
+
+
+async function generateLogs(){
+
+let btn=document.getElementById("runBtn")
+
+btn.innerText="Generating Logs..."
+btn.disabled=true
+
+try{
+
+await fetch("/run_detection")
+
+loadWidgets()
+
+}catch(e){
+
+console.error(e)
+
+}
+
+btn.innerText="Generate Enterprise Logs"
+btn.disabled=false
+
+}
+
+function updateTimeline(data){
+
+data.timeline_labels.forEach((label,index)=>{
+
+timelineChart.data.labels.push(label)
+timelineChart.data.datasets[0].data.push(data.timeline_values[index])
+
+})
+
+if(timelineChart.data.labels.length>30){
+
+timelineChart.data.labels.shift()
+timelineChart.data.datasets[0].data.shift()
+
+}
+
+timelineChart.update()
+
+}
+
+
+async function loadWidgets(){
+
+let res=await fetch("/dashboard_data")
+let data=await res.json()
+
+// CALCULATE MAX RISK
+
+let maxRisk = 0
+
+data.threats.forEach(t=>{
+
+if(t.risk && t.risk > maxRisk){
+maxRisk = t.risk
+}
+
+})
+
+// CONVERT TO PERCENT
+
+let percent = Math.min((maxRisk / 20) * 100 , 100)
+
+document.getElementById("riskPercent").innerText =
+percent.toFixed(0) + "%"
+
+let card = document.getElementById("riskCard")
+
+card.classList.remove("high-glow","critical-glow")
+
+if(percent > 75){
+card.classList.add("critical-glow")
+}
+else if(percent > 50){
+card.classList.add("high-glow")
+}
+
+// DETERMINE RISK LEVEL
+
+let riskLevelText = "LOW"
+let riskClass = "low-risk"
+
+if(percent > 75){
+riskLevelText = "CRITICAL"
+riskClass = "critical-risk"
+}
+else if(percent > 50){
+riskLevelText = "HIGH"
+riskClass = "high-risk"
+}
+else if(percent > 25){
+riskLevelText = "MEDIUM"
+riskClass = "medium-risk"
+}
+
+document.getElementById("riskLevel").innerText = riskLevelText
+document.getElementById("riskLevel").className = riskClass
+
+// UPDATE GAUGE COLORS
+
+riskGauge.data.datasets[0].data = [
+25,
+25,
+25,
+25
+]
+
+riskGauge.update()
+
+let criticalCount=data.threats.filter(t=>t.severity==="High").length
+
+let activeCount=data.threats.filter(t=>t.status==="Active").length
+
+let investigatingCount=data.threats.filter(t=>t.status==="Investigating").length
+
+let remediatedCount=data.threats.filter(t=>t.status==="Remediated").length
+
+let totalCount=data.threats.length
+
+document.getElementById("kpiCritical").innerText=criticalCount
+document.getElementById("kpiActive").innerText=activeCount
+document.getElementById("kpiRemediated").innerText=remediatedCount
+document.getElementById("kpiTotal").innerText=totalCount
+
+
+let table=document.getElementById("threatTable")
+table.innerHTML=""
+
+// HIGH RISK BANNER LOGIC
+
+let highThreat = data.threats.find(t => t.risk > 15)
+
+if(highThreat){
+
+document.getElementById("highRiskBanner").style.display="flex"
+
+document.getElementById("riskDetails").innerText =
+`User: ${highThreat.user} | Threat: ${highThreat.type || "Unknown"} | Risk Score: ${highThreat.risk.toFixed(2)}`
+
+}else{
+
+document.getElementById("highRiskBanner").style.display="none"
+
+}
+// CRITICAL POPUP LOGIC
+
+let criticalThreat = data.threats.find(t => t.risk > 17.5)
+
+if(criticalThreat){
+
+document.getElementById("criticalPopup").style.display="flex"
+
+document.getElementById("popupDetails").innerText =
+`User: ${criticalThreat.user} | Risk Score: ${criticalThreat.risk.toFixed(2)}`
+
+window.currentCriticalThreat = criticalThreat.id
+
+document.getElementById("criticalSound").play()
+
+}
+
+data.threats.forEach(t=>{
+
+table.innerHTML+=`
+<tr>
+<td>${t.user}</td>
+<td>${t.risk?t.risk.toFixed(2):"0.00"}</td>
+<td><span class="badge bg-danger">${t.severity}</span></td>
+<td><span class="badge bg-warning">${t.status}</span></td>
+<td>
+<button class="btn btn-sm btn-primary"
+onclick="viewThreat(${t.id})">
+Details
+</button>
+</td>
+</tr>
+`
+
+})
+
+
+let alerts=document.getElementById("alertList")
+alerts.innerHTML=""
+
+data.alerts.forEach(a=>{
+
+alerts.innerHTML+=`
+<div class="alert-item d-flex justify-content-between align-items-center">
+
+<div>
+${a.message}
+</div>
+
+<button class="btn btn-sm btn-outline-light"
+onclick="viewThreat(${a.id})">
+Details
+</button>
+
+</div>
+`
+
+})
+// Update Threat Status Pie Chart
+
+statusChart.data.datasets[0].data=[
+activeCount,
+investigatingCount,
+remediatedCount
+]
+
+statusChart.update()
+
+
+updateTimeline(data)
+
+
+typeChart.data.labels=data.type_labels
+typeChart.data.datasets[0].data=data.type_values
+typeChart.update()
+
+}
+
+
+window.onload=function(){
+
+initCharts()
+loadWidgets()
+
+}
+
+
+setInterval(async function(){
+
+await fetch("/run_detection")
+loadWidgets()
+
+},5000)
+
+function closePopup(){
+
+document.getElementById("criticalPopup").style.display="none"
+
+}
+
+function investigateThreat(){
+
+if(window.currentCriticalThreat){
+
+window.location.href = "/threat/" + window.currentCriticalThreat
+
+}
+
+
+
+alert("Opening Threat Investigation Panel")
+
+document.getElementById("criticalPopup").style.display="none"
+
+}
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}

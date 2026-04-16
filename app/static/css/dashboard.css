@@ -1,0 +1,19 @@
+.card{
+background:#1c2333;
+border:none;
+border-radius:10px;
+}
+
+canvas{
+width:100% !important;
+height:320px !important;
+}
+
+.table{
+margin-top:15px;
+}
+
+.list-group{
+max-height:260px;
+overflow-y:auto;
+}

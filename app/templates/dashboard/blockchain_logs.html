@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-3">Blockchain Security Logs</h2>
+
+<p class="text-secondary mb-4" style="max-width:700px;">
+All security events are recorded in an immutable blockchain audit ledger.
+Each block contains a cryptographic hash linked to the previous block,
+ensuring that any modification would invalidate the chain integrity.
+</p>
+
+
+{% for block in chain %}
+
+<div class="block-card
+{% if block.data.get('severity') == 'High' %}high
+{% elif block.data.get('severity') == 'Medium' %}medium
+{% elif block.data.get('severity') == 'Low' %}low
+{% endif %}
+">
+
+<h4>Block #{{ block.index }}</h4>
+
+<p class="time">{{ block.timestamp }}</p>
+
+<div class="event-box">
+
+{% if block.index == 0 %}
+
+{{ block.data }}
+
+{% else %}
+
+{% if block.data.get('event') %}
+<div><strong>Event:</strong> {{ block.data.get('event') }}</div>
+{% endif %}
+
+{% if block.data.get('user') %}
+<div><strong>User:</strong> {{ block.data.get('user') }}</div>
+{% endif %}
+
+{% if block.data.get('threat_type') %}
+<div><strong>Threat Type:</strong> {{ block.data.get('threat_type') }}</div>
+{% endif %}
+
+{% if block.data.get('risk_score') is not none %}
+<div><strong>Risk Score:</strong> {{ "%.2f"|format(block.data.get('risk_score')) }}</div>
+{% endif %}
+
+{% if block.data.get('severity') %}
+<div><strong>Severity:</strong> {{ block.data.get('severity') }}</div>
+{% endif %}
+
+{% endif %}
+
+</div>
+
+
+<div class="hash-label">Hash</div>
+<div class="hash">{{ block.hash }}</div>
+
+<div class="hash-label">Previous Hash</div>
+<div class="hash">{{ block.previous_hash }}</div>
+
+<div class="verify">
+{% if block.verified %}
+<span class="verified">✔ VERIFIED</span>
+{% else %}
+<span class="tampered">✖ TAMPERED</span>
+{% endif %}
+</div>
+
+</div>
+
+{% if not loop.last %}
+<div class="connector">↓</div>
+{% endif %}
+
+{% endfor %}
+
+
+
+<style>
+body{
+background:transparent !important;
+}
+
+.block-card{
+background:rgba(30,41,59,0.45) !important;
+color:white;
+}
+
+.event-box{
+background:#020617 !important;
+}
+
+.hash{
+background:#020617 !important;
+}
+
+/* BLOCK CARD */
+
+.block-card{
+background:rgba(30,41,59,0.9);
+border-radius:14px;
+padding:25px;
+margin-bottom:25px;
+border-left:6px solid #3b82f6;
+box-shadow:0 6px 12px rgba(0,0,0,0.4);
+transition:.25s;
+}
+
+.block-card:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 18px rgba(0,0,0,0.5);
+}
+
+/* SEVERITY COLORS */
+
+.block-card.high{ border-left:6px solid #ef4444; }
+.block-card.medium{ border-left:6px solid #f97316; }
+.block-card.low{ border-left:6px solid #22c55e; }
+
+/* EVENT BOX */
+
+.event-box{
+background:#020617;
+padding:15px;
+border-radius:8px;
+margin-top:10px;
+margin-bottom:15px;
+}
+
+/* HASH */
+
+.hash{
+background:#020617;
+padding:10px;
+border-radius:6px;
+font-size:11px;
+word-break:break-all;
+color:#22c55e;
+}
+
+.hash-label{
+font-size:12px;
+color:#94a3b8;
+margin-top:10px;
+}
+
+/* CONNECTOR */
+
+.connector{
+text-align:center;
+font-size:30px;
+color:#3b82f6;
+margin-bottom:20px;
+}
+
+/* VERIFY STATUS */
+
+.verify{
+margin-top:15px;
+font-weight:bold;
+}
+
+.verified{ color:#22c55e; }
+.tampered{ color:#ef4444; }
+
+/* TIME */
+
+.time{
+color:#94a3b8;
+font-size:14px;
+}
+body{
+background:transparent !important;
+}
+
+.block-card{
+background:rgba(30,41,59,0.45) !important;
+color:white;
+}
+
+.event-box{
+background:#020617 !important;
+}
+
+.hash{
+background:#020617 !important;
+}
+
+</style>
+
+{% endblock %}

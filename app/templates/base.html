@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Behavioral Insider Threat SOC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+
+/* =========================
+PARTICLE BACKGROUND
+========================= */
+
+#particles-js{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#020617;
+z-index:-2;
+}
+
+/* =========================
+BODY
+========================= */
+
+body{
+margin:0;
+font-family:Segoe UI;
+color:white;
+background:#020617;
+overflow-x:hidden;
+}
+
+/* =========================
+DARK OVERLAY
+========================= */
+
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background: rgba(2,6,23,0.25);
+
+z-index:-1;
+pointer-events:none;
+}
+/* =========================
+SIDEBAR
+========================= */
+
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+height:100vh;
+width:240px;
+
+background:rgba(15,23,42,0.20);
+
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+
+padding:25px;
+
+border-right:1px solid rgba(255,255,255,0.06);
+
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+
+z-index:1000;
+}
+/* SIDEBAR TITLE */
+
+.sidebar h4{
+font-weight:700;
+letter-spacing:1px;
+margin-bottom:25px;
+}
+
+/* SIDEBAR LINKS */
+
+.sidebar a{
+display:flex;
+align-items:center;
+gap:10px;
+
+color:#cbd5e1;
+
+padding:12px 14px;
+
+margin-bottom:10px;
+
+border-radius:8px;
+
+text-decoration:none;
+
+transition:all .25s ease;
+
+font-weight:500;
+}
+
+/* SIDEBAR HOVER */
+
+.sidebar a:hover{
+background:rgba(59,130,246,0.15);
+color:white;
+box-shadow:0 0 12px rgba(59,130,246,0.6);
+transform:translateX(4px);
+}
+
+/* =========================
+MAIN CONTENT
+========================= */
+
+.main-content{
+margin-left:240px;
+padding:50px 60px;
+min-height:100vh;
+max-width:1600px;
+
+/* PAGE ANIMATION */
+
+animation:fadePage .4s ease;
+}
+
+/* PAGE FADE */
+
+@keyframes fadePage{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* SCROLL REVEAL ANIMATION */
+
+.section{
+opacity:0;
+transform:translateY(40px);
+transition:all .6s ease;
+}
+
+.section.show{
+opacity:1;
+transform:translateY(0);
+}
+
+GLASS CARDS
+========================= */
+
+.card{
+background:rgba(30,41,59,0.18);
+
+border:1px solid rgba(255,255,255,0.08);
+
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+
+border-radius:14px;
+
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 0 30px rgba(59,130,246,0.2);
+}
+/* =========================
+TABLE
+========================= */
+
+.table{
+color:white;
+border-color:rgba(255,255,255,0.1);
+
+background:rgba(30,41,59,0.15);
+
+backdrop-filter:blur(12px);
+}
+
+.table thead{
+background:rgba(30,41,59,0.6);
+}
+
+/* =========================
+BUTTON GLOW
+========================= */
+
+.btn-primary{
+box-shadow:0 0 10px rgba(59,130,246,0.4);
+}
+
+.btn-primary:hover{
+box-shadow:0 0 18px rgba(59,130,246,0.8);
+}
+
+/* =========================
+ALERT POPUP
+========================= */
+
+.alert-popup{
+position:fixed;
+top:50%;
+left:50%;
+
+transform:translate(-50%,-50%);
+
+background:#7f1d1d;
+
+padding:30px;
+
+border-radius:12px;
+
+box-shadow:0 0 40px red;
+
+display:none;
+
+z-index:2000;
+
+text-align:center;
+
+width:400px;
+}
+
+.alert-popup h2{
+margin-bottom:15px;
+}
+
+.alert-popup button{
+margin:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="particles-js"></div>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<h4>🛡 AI SOC</h4>
+
+<hr>
+
+<a href="/dashboard">
+<i class="fa-solid fa-chart-line"></i> Dashboard
+</a>
+
+<a href="/threat_analysis">
+<i class="fa-solid fa-brain"></i> Threat Analysis
+</a>
+
+<a href="/threat_management">
+<i class="fa-solid fa-shield"></i> Threat Management
+</a>
+
+<a href="/blockchain_logs">
+<i class="fa-solid fa-link"></i> Blockchain Logs
+</a>
+
+<a href="/reports">
+<i class="fa-solid fa-file"></i> Reports
+</a>
+
+</div>
+
+<!-- MAIN CONTENT -->
+
+<div class="main-content">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+<!-- ALERT POPUP -->
+
+<div id="alertBox" class="alert-popup">
+
+<h2>⚠ High Risk Alert</h2>
+
+<p>Possible Data Exfiltration Detected</p>
+
+<button class="btn btn-light">Investigate</button>
+
+<button class="btn btn-danger" onclick="closeAlert()">Dismiss</button>
+
+</div>
+
+<!-- PARTICLES JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+<script>
+particlesJS("particles-js", {
+
+particles:{
+number:{ value:80 },
+
+color:{ value:"#3b82f6" },
+
+shape:{ type:"circle" },
+
+opacity:{
+value:0.5,
+random:true
+},
+
+size:{
+value:3,
+random:true
+},
+
+line_linked:{
+enable:true,
+distance:150,
+color:"#3b82f6",
+opacity:0.4,
+width:1
+},
+
+move:{
+enable:true,
+speed:1.5
+}
+
+},
+
+interactivity:{
+events:{
+onhover:{ enable:true, mode:"grab" }
+}
+}
+
+});
+
+
+const observer = new IntersectionObserver((entries) => {
+
+entries.forEach(entry => {
+
+if(entry.isIntersecting){
+entry.target.classList.add("show")
+}
+
+})
+
+})
+
+document.querySelectorAll(".section").forEach((el) => {
+observer.observe(el)
+})
+
+
+
+</script>
+
+</body>
+</html>

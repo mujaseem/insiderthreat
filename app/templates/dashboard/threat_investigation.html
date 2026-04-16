@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>Threat Investigation</h2>
+
+<div class="card bg-dark text-white p-3 mb-4">
+
+<h5>Threat Details</h5>
+
+<p><strong>User:</strong> {{ threat.user_id }}</p>
+<p><strong>Threat Type:</strong> {{ threat.threat_type }}</p>
+<p><strong>Severity:</strong> {{ threat.severity }}</p>
+<p><strong>Risk Score:</strong> {{ threat.risk_score }}</p>
+<p><strong>Status:</strong> {{ threat.status }}</p>
+<p><strong>Detected:</strong> {{ threat.timestamp }}</p>
+
+</div>
+
+
+<div class="card bg-dark text-white p-3">
+
+<h5>User Activity Logs</h5>
+
+<table class="table table-dark table-striped">
+
+<thead>
+<tr>
+<th>Session</th>
+<th>Files Accessed</th>
+<th>Commands</th>
+<th>Data Downloaded</th>
+<th>Failed Logins</th>
+<th>Risk Score</th>
+</tr>
+</thead>
+
+<tbody>
+
+    <div class="card mt-4">
+    <div class="card-header">
+        <h5>AI Threat Explanation</h5>
+    </div>
+
+    <div class="card-body">
+        <ul>
+            {% for reason in explanation %}
+            <li>{{ reason }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Future Risk Prediction</h5>
+    </div>
+
+    <div class="card-body">
+
+        <p><strong>Current Risk:</strong> {{ prediction.current_risk }}</p>
+
+        <p><strong>Trend:</strong> {{ prediction.trend }}</p>
+
+        <p><strong>Predicted Risk:</strong> {{ prediction.predicted_risk }}</p>
+
+        {% if prediction.predicted_risk > 15 %}
+        <div class="alert alert-danger">
+            ⚠ High probability of insider threat escalation
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% for log in logs %}
+
+<tr>
+<td>{{ log.session_duration }}</td>
+<td>{{ log.files_accessed }}</td>
+<td>{{ log.commands_executed }}</td>
+<td>{{ log.data_downloaded_mb }}</td>
+<td>{{ log.failed_login_attempts }}</td>
+<td>{{ log.risk_score }}</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

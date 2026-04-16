@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+/* MAIN TABLE CARD */
+
+.container-box{
+background:rgba(17,24,39,0.65);
+padding:25px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,0.06);
+backdrop-filter:blur(12px);
+box-shadow:0 8px 25px rgba(0,0,0,0.6);
+}
+
+/* TABLE */
+
+.table{
+color:white;
+}
+
+.table thead{
+background:rgba(31,41,55,0.7);
+}
+
+/* SEVERITY */
+
+.badge-high{background:#dc2626;}
+.badge-medium{background:#f59e0b;}
+.badge-low{background:#10b981;}
+
+/* STATUS */
+
+.badge-active{background:#ef4444;}
+.badge-investigating{background:#f59e0b;}
+.badge-remediated{background:#22c55e;}
+.badge-false{background:#6b7280;}
+
+/* FILTER BOX */
+
+.filter-box{
+background:rgba(31,41,55,0.6);
+padding:18px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.05);
+margin-bottom:25px;
+backdrop-filter:blur(10px);
+}
+
+/* INPUTS */
+
+select,input{
+background:#020617 !important;
+color:white !important;
+border:1px solid #334155 !important;
+}
+
+.action-select{
+background:#020617;
+color:white;
+border:1px solid #334155;
+padding:6px;
+border-radius:6px;
+}
+
+</style>
+
+
+<div class="container-fluid px-4">
+
+<h3 class="mb-4">Threat Management</h3>
+
+<!-- FILTERS -->
+
+<div class="filter-box">
+
+<form method="GET">
+
+<div class="row g-3">
+
+<div class="col-md-3">
+<label class="mb-1">Severity</label>
+<select name="severity" class="form-select">
+<option>All</option>
+<option>High</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+</div>
+
+<div class="col-md-3">
+<label class="mb-1">Status</label>
+<select name="status" class="form-select">
+<option>All</option>
+<option>Active</option>
+<option>Investigating</option>
+<option>Remediated</option>
+<option>False Positive</option>
+</select>
+</div>
+
+<div class="col-md-3">
+<label class="mb-1">Threat Type</label>
+<select name="type" class="form-select">
+<option>All</option>
+<option>Suspicious Login</option>
+<option>Data Exfiltration</option>
+<option>Privilege Abuse</option>
+<option>Malware Activity</option>
+</select>
+</div>
+
+<div class="col-md-3 d-flex align-items-end">
+<button class="btn btn-primary w-100">
+Apply Filters
+</button>
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+
+<!-- THREAT TABLE -->
+
+<div class="container-box">
+
+<table class="table table-hover">
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Severity</th>
+<th>Status</th>
+<th>Confidence</th>
+<th>Detected</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for threat in threats %}
+
+<tr id="row-{{ threat.id }}">
+
+<td>{{ threat.threat_type }}</td>
+
+<td>{{ threat.threat_type }}</td>
+
+<td>
+
+{% if threat.severity == "High" %}
+<span class="badge badge-high">High</span>
+
+{% elif threat.severity == "Medium" %}
+<span class="badge badge-medium">Medium</span>
+
+{% else %}
+<span class="badge badge-low">Low</span>
+{% endif %}
+
+</td>
+
+<td id="status-{{ threat.id }}">
+
+{% if threat.status == "Active" %}
+<span class="badge badge-active">Active</span>
+
+{% elif threat.status == "Investigating" %}
+<span class="badge badge-investigating">Investigating</span>
+
+{% elif threat.status == "Remediated" %}
+<span class="badge badge-remediated">Remediated</span>
+
+{% else %}
+<span class="badge badge-false">False Positive</span>
+
+{% endif %}
+
+</td>
+
+<td>
+{{ (threat.risk_score * 10)|round(0) }}%
+</td>
+
+<td>
+{{ threat.timestamp }}
+</td>
+
+<td>
+
+<select class="action-select" onchange="updateThreat({{ threat.id }}, this.value)">
+
+<option value="">Actions</option>
+
+<option value="Investigating">Mark Investigating</option>
+<option value="Remediated">Mark Remediated</option>
+<option value="False Positive">False Positive</option>
+
+</select>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<script>
+
+async function updateThreat(id,status){
+
+if(status===""){return}
+
+const response = await fetch("/update_threat/"+id,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+status:status
+})
+})
+
+const data = await response.json()
+
+if(data.success){
+
+let statusCell = document.getElementById("status-"+id)
+
+if(status==="Investigating"){
+statusCell.innerHTML='<span class="badge badge-investigating">Investigating</span>'
+}
+
+else if(status==="Remediated"){
+statusCell.innerHTML='<span class="badge badge-remediated">Remediated</span>'
+}
+
+else{
+statusCell.innerHTML='<span class="badge badge-false">False Positive</span>'
+}
+
+}
+
+}
+
+</script>
+
+{% endblock %}

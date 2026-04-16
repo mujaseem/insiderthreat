@@ -1,0 +1,187 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+height:100vh;
+font-family:Segoe UI, sans-serif;
+background:radial-gradient(circle at top,#0f172a,#020617);
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+color:white;
+}
+
+/* canvas layers */
+
+#grid{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-2;
+}
+
+#particles{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-1;
+}
+
+/* login card */
+
+.login-container{
+z-index:10;
+}
+
+.login-card{
+width:380px;
+padding:40px;
+border-radius:14px;
+background:rgba(15,23,42,0.85);
+backdrop-filter:blur(14px);
+box-shadow:0 0 30px rgba(59,130,246,0.35);
+text-align:center;
+}
+
+.login-card h2{
+margin-bottom:25px;
+font-weight:500;
+}
+
+/* inputs */
+
+.login-input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border-radius:6px;
+border:none;
+outline:none;
+background:#0f172a;
+color:white;
+}
+
+/* button */
+
+.login-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:6px;
+background:linear-gradient(90deg,#3b82f6,#6366f1);
+color:white;
+cursor:pointer;
+font-size:15px;
+transition:0.3s;
+}
+
+.login-btn:hover{
+box-shadow:0 0 15px #3b82f6;
+transform:translateY(-1px);
+}
+
+/* link */
+
+.login-card a{
+color:#60a5fa;
+text-decoration:none;
+font-size:14px;
+}
+
+.login-card{
+position:relative;
+overflow:hidden;
+}
+
+.login-card::before{
+content:"";
+position:absolute;
+top:-2px;
+left:-2px;
+right:-2px;
+bottom:-2px;
+background:linear-gradient(
+45deg,
+#3b82f6,
+#6366f1,
+#3b82f6,
+#6366f1
+);
+background-size:400%;
+z-index:-1;
+border-radius:14px;
+animation:neonBorder 8s linear infinite;
+}
+
+@keyframes neonBorder{
+0%{background-position:0%}
+50%{background-position:300%}
+100%{background-position:0%}
+}
+.login-title{
+font-weight:600;
+letter-spacing:2px;
+margin-bottom:25px;
+animation:titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow{
+from{
+text-shadow:0 0 5px #3b82f6;
+}
+to{
+text-shadow:
+0 0 10px #3b82f6,
+0 0 20px #6366f1,
+0 0 30px #6366f1;
+}
+}
+.logo{
+width:60px;
+margin-bottom:10px;
+filter:drop-shadow(0 0 6px #3b82f6);
+}
+.login-card{
+animation:cardFade 1.2s ease;
+}
+
+@keyframes cardFade{
+from{
+opacity:0;
+transform:translateY(40px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+/* scanning line effect */
+
+.scan-line{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:2px;
+background:linear-gradient(90deg,transparent,#3b82f6,transparent);
+box-shadow:0 0 12px #3b82f6;
+animation:scanMove 4s linear infinite;
+z-index:-1;
+}
+
+@keyframes scanMove{
+0%{
+top:0%;
+}
+100%{
+top:100%;
+}
+}

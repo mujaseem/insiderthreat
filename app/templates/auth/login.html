@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>InsiderGuard AI Login</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+
+</head>
+
+<body>
+
+<canvas id="grid"></canvas>
+<canvas id="particles"></canvas>
+<div class="scan-line"></div>
+
+<div class="login-container">
+
+<div class="login-card">
+
+<img src="{{ url_for('static', filename='assets/soc_logo.png') }}" class="logo">
+<p class="subtitle">Behavioral Insider Threat SOC Platform</p>
+<h2 class="login-title">InsiderGuard AI</h2>
+
+
+
+
+
+<form method="POST">
+
+<input class="login-input" type="text" name="username" placeholder="Username" required>
+
+<input class="login-input" type="password" name="password" placeholder="Password" required>
+
+<button class="login-btn">Login</button>
+
+</form>
+
+<br>
+
+<a href="/register">Create account</a>
+
+</div>
+
+</div>
+
+<script src="{{ url_for('static', filename='animations/grid.js') }}"></script>
+<script src="{{ url_for('static', filename='animations/particles.js') }}"></script>
+
+</body>
+
+</html>
